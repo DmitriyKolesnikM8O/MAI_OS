@@ -22,7 +22,7 @@ typedef struct {
 long long calculate_power(int base, int exponent) {
     long long result = 1;
     if (exponent < 0) {
-         return -1; // Возвращаем -1, если экспонента отрицательная (не обрабатываем дробные степени)
+         return -1;
     }
     for (int i = 0; i < exponent; ++i) {
         result *= base;
@@ -79,7 +79,7 @@ void split_memory_chunk(allocator* manager, mem_chunk* chunk) {
     int list_index = 0;
     int new_capacity = chunk->capacity / 2;
     
-    
+    //lists index for new chunk
     while (calculate_power(2, list_index) < new_capacity) {
         list_index++;
     }
@@ -167,12 +167,12 @@ void release_memory(allocator* manager, void* chunk_ptr) {
     }
 
     
-     if(manager->lists_chunks[list_index] != NULL){
-           chunk->next = manager->lists_chunks[list_index];
-           manager->lists_chunks[list_index]->prev = chunk;
-       } else {
+    if(manager->lists_chunks[list_index] != NULL){
+        chunk->next = manager->lists_chunks[list_index];
+        manager->lists_chunks[list_index]->prev = chunk;
+    } else {
         chunk->next = NULL;
-       }
+    }
 
     manager->lists_chunks[list_index] = chunk;
 }
@@ -182,7 +182,7 @@ void destroy_memory_manager(allocator* manager) {
         return;
     }
     
-    if (munmap((void *)manager, manager->size + sizeof(allocator)) != 0) {
+    if (munmap((void *)manager, manager->size + sizeof(allocator)) != 0) { //destroy memory area
         const char msg[] = "ERROR: failed to destroy allocator\n";
         write(STDERR_FILENO, msg, sizeof(msg) - 1);
         exit(EXIT_FAILURE);

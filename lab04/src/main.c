@@ -4,7 +4,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <sys/mman.h>
-#include <dlfcn.h>
+#include <dlfcn.h> //dlopen, dlsym, dlclose
 
 
 #ifndef MAP_ANON
@@ -147,12 +147,6 @@ int run_memory_test(const char* library_path) {
         write(STDOUT_FILENO, msg, sizeof(msg) - 1);
     }
     
-    
-    if (allocated_chunk) {
-        // const char* text = "meow\n";
-        // memcpy(allocated_chunk, text, strlen(text) + 1);
-        
-    }
 
     strcpy(allocated_chunk, "VERY VERY LONG WORD!\n");
     
@@ -174,17 +168,22 @@ int run_memory_test(const char* library_path) {
     write(STDOUT_FILENO, msg2, sizeof(msg2) - 1);
     
     free(manager_api);
-    munmap(test_area_address, test_area_size);
-    
+    int err = munmap(test_area_address, test_area_size); //destroy test area
+    if (err != 0) {
+        const char msg[] = "ERROR: failed to destroy test area\n";
+        write(STDERR_FILENO, msg, sizeof(msg) - 1);
+        return EXIT_FAILURE;
+    }
 
-    
-    
     return EXIT_SUCCESS;
 }
 
 
 int main(int argc, char** argv) {
-    const char* library_path = (argc > 1) ? argv[1] : NULL;
+    const char* library_path = NULL;
+    if (argc > 1) {
+        library_path = argv[1];
+    }
 
     if (run_memory_test(library_path) != EXIT_SUCCESS) {
         return EXIT_FAILURE;
